@@ -871,29 +871,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.015;z
       <div class="cf-heading">Send a Message</div>
       <p class="cf-sub">Have a project in mind or just want to connect? Fill in the form and I'll get back to you as soon as possible.</p>
 
-      <form id="cf" class="cf-form" novalidate>
+      <form id="cf" class="cf-form" action="https://formspree.io/f/moejzbzb" method="POST" novalidate>
+
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 
         <div class="cf-row">
           <div class="fg">
             <label class="fl" for="fn">Your Name <span>*</span></label>
-            <input type="text" id="fn" class="fin" placeholder="Ashen Wijesingha" required autocomplete="name">
+            <input type="text" id="fn" name="name" class="fin" placeholder="Ashen Wijesingha" required autocomplete="name">
             <div class="fer" style="display:none">Please enter your name.</div>
           </div>
           <div class="fg">
             <label class="fl" for="fe">Email Address <span>*</span></label>
-            <input type="email" id="fe" class="fin" placeholder="you@example.com" required autocomplete="email">
+            <input type="email" id="fe" name="email" class="fin" placeholder="you@example.com" required autocomplete="email">
             <div class="fer" style="display:none">Please enter a valid email.</div>
           </div>
         </div>
 
         <div class="fg">
           <label class="fl" for="fs">Subject</label>
-          <input type="text" id="fs" class="fin" placeholder="What's this about?">
+          <input type="text" id="fs" name="subject" class="fin" placeholder="What's this about?">
         </div>
 
         <div class="fg" style="flex:1;display:flex;flex-direction:column;">
           <label class="fl" for="fmg">Message <span>*</span></label>
-          <textarea id="fmg" class="fta" placeholder="Tell me about your project, opportunity, or just say hello..." required style="flex:1;min-height:150px;"></textarea>
+          <textarea id="fmg" name="message" class="fta" placeholder="Tell me about your project, opportunity, or just say hello..." required style="flex:1;min-height:150px;"></textarea>
           <div class="fer" style="display:none">Please write a message.</div>
         </div>
 
@@ -969,7 +971,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mm.classList.contai
 const fm=document.getElementById('cf'),fk=document.getElementById('fok');
 function ck(i){const g=i.closest('.fg');if(!i.required)return true;let ok=i.type==='email'?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(i.value.trim()):i.value.trim().length>0;g.classList.toggle('err',!ok);return ok}
 fm.querySelectorAll('.fin,.fta').forEach(i=>{i.addEventListener('blur',()=>ck(i));i.addEventListener('input',()=>{if(i.closest('.fg').classList.contains('err'))ck(i)})});
-fm.addEventListener('submit',e=>{e.preventDefault();let ok=true;fm.querySelectorAll('[required]').forEach(i=>{if(!ck(i))ok=false});if(!ok)return;fm.style.display='none';fk.classList.add('show');toast('Message sent!');setTimeout(()=>{fm.reset();fm.style.display='';fk.classList.remove('show');fm.querySelectorAll('.fg').forEach(g=>g.classList.remove('err'))},4000)});
+fm.addEventListener('submit',async e=>{e.preventDefault();let ok=true;fm.querySelectorAll('[required]').forEach(i=>{if(!ck(i))ok=false});if(!ok)return;const sb=fm.querySelector('button[type=submit]');sb.disabled=true;try{const r=await fetch(fm.action,{method:'POST',body:new FormData(fm),headers:{Accept:'application/json'}});if(!r.ok)throw new Error(r.status)}catch(err){toast('Could not send message. Please try again.');return}finally{sb.disabled=false}fm.style.display='none';fk.classList.add('show');toast('Message sent!');setTimeout(()=>{fm.reset();fm.style.display='';fk.classList.remove('show');fm.querySelectorAll('.fg').forEach(g=>g.classList.remove('err'))},4000)});
 
 document.addEventListener('keydown',e=>{if(e.altKey&&!e.ctrlKey&&!e.shiftKey){const m={'1':'#hero','2':'#about','3':'#experience','4':'#education','5':'#projects','6':'#skills','7':'#contact'};if(m[e.key]){e.preventDefault();document.querySelector(m[e.key]).scrollIntoView({behavior:'smooth'})}}});
 })();
